@@ -17,7 +17,7 @@ const { createFakeUser } = require("../helpers");
 
 describe("DB Users", () => {
   describe("createUser({ username, password })", () => {
-    xit("Creates and returns the user", async () => {
+    it("Creates and returns the user", async () => {
       const fakeUserData = {
         username: "Horace",
         password: faker.internet.password(),
@@ -26,7 +26,7 @@ describe("DB Users", () => {
       expect(user.username).toBe(fakeUserData.username);
     });
 
-    xit("Does NOT return the password", async () => {
+    it("Does NOT return the password", async () => {
       const fakeUserData = {
         username: faker.internet.userName(),
         password: faker.internet.password(),
@@ -37,7 +37,7 @@ describe("DB Users", () => {
   });
 
   describe("getUserByUsername", () => {
-    xit("Gets a user based on the username", async () => {
+    it("Gets a user based on the username", async () => {
       const fakeUserData = {
         username: "Sean",
         password: faker.internet.password(),
@@ -48,7 +48,7 @@ describe("DB Users", () => {
       expect(user.username).toBe(fakeUserData.username);
     });
 
-    xit("Does return the password", async () => {
+    it("Does return the password", async () => {
       const fakeUserData = {
         username: "Brittany",
         password: faker.internet.password(),
@@ -121,7 +121,7 @@ describe("DB Users", () => {
       expect(queriedUser.password).not.toBe(fakeUserData.password);
     });
 
-    xit("EXTRA CREDIT: Hashes the password (salted 10 times) before storing it to the database", async () => {
+    it("EXTRA CREDIT: Hashes the password (salted 10 times) before storing it to the database", async () => {
       const fakeUserData = {
         username: "Nicky",
         password: faker.internet.password(),
