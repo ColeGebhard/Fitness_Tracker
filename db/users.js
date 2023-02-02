@@ -22,20 +22,23 @@ async function createUser({ username, password }) {
 }
 
 
+
 async function getUser({ username, password }) {
   try{
-    const user = await getUserByUserName(username);
+    const user = await getUserByUsername(username);
     const hashedPassword = user.password;
     const isValid = await bcrypt.compare(password, hashedPassword)
 
     const { rows } = await client.query(`
     SELECT *
     FROM users
-    WHERE username =${user};
-    `,[username])
+    WHERE (username =$1 
+    AND password = $2);
+    `,[username,password])
    
     if(isValid){
-      delete rows.password
+      
+      delete rows.password;
       return rows;
     }else{
       throw Error('Password doesnt verify')
@@ -43,7 +46,7 @@ async function getUser({ username, password }) {
 
 
   }catch(error){
-    throw Error('Failed getting users')
+    throw Error(error)
   }
 
   
@@ -51,18 +54,33 @@ async function getUser({ username, password }) {
 }
 
 async function getUserById(userId) {
+  try{
+    const { rows: [userById] } = await client.query(`
+    SELECT * 
+    from users 
+    WHERE id=${userId}
+    `)
+    console.log(userById)
+    delete userById.password
+    return userById;
+
+  }catch(error){
+    throw Error('Failed to get user by Id')
+  }
 
 }
 
 async function getUserByUsername(userName) {
   try{
-    const { rows : [userByUsername]} = await client.query(`
+    const { rows: [user]} = await client.query(`
     SELECT * 
-    FROM users
-    WHERE username =${userName}
-    `)
-    return userByUsername;
+    from users 
+    WHERE username=$1
+    `,[userName])
+    console.log(user)
+    return user;
   }catch(error){
+    
     throw Error('Failed to get User')
   }
 
