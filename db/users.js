@@ -20,8 +20,7 @@ async function createUser({ username, password }) {
 async function getUser({ username, password }) {
 
   const user = await getUserByUsername(username);
-  console.log(user)
-  const hashedPassword = user.password;
+    const hashedPassword = user.password;
   const isValid = await bcrypt.compare(password, hashedPassword);
   try{
      const { rows:[user] } = await client.query(`
@@ -47,7 +46,7 @@ async function getUserById(userId) {
       SELECT id
       FROM users
       WHERE id=${ userId };
-    `);
+    `, );
 
     if (!user) {
       return null
