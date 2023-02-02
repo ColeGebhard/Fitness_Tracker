@@ -14,21 +14,30 @@ async function createUser({ username, password }) {
     delete user.password;
     return user;
   }catch(error){
-    throw Error('failed to create user');
-  }
+    throw Error('failed to create user')}
 }
 
 async function getUser({ username, password }) {
+
+  const user = await getUserByUsername(username);
+  console.log(user)
+  const hashedPassword = user.password;
+  const isValid = await bcrypt.compare(password, hashedPassword);
   try{
-    const hashedPassword = await bcrypt.hash(password, SALT_COUNT)
      const { rows:[user] } = await client.query(`
      SELECT *
-     FROM users;
-     ` [username, hashedPassword])
+     FROM users
+     WHERE username=$1
+         AND password=$2;
+     `, [username, hashedPassword])
+    if (!isValid) {
+      return null;
+    }
+     delete user.password;
 
      return user;
   } catch (error) {
-    throw Error('Failed to get user')
+    return null;
   }
 }
 
@@ -37,7 +46,7 @@ async function getUserById(userId) {
     const { rows: [ user ] } = await client.query(`
       SELECT id
       FROM users
-      WHERE id=${ userId }
+      WHERE id=${ userId };
     `);
 
     if (!user) {
@@ -52,9 +61,9 @@ async function getUserById(userId) {
 async function getUserByUsername(username) {
   try {
     const { rows: [user] } = await client.query(`
-      SELECT username
+      SELECT *
       FROM users
-      WHERE username=${ username };
+      WHERE username=$1;
     `, [username]);
 
     return user;
