@@ -3,11 +3,12 @@ const client = require('./client');
 // database functions
 async function createActivity({ name, description }) {
   try{
-    const { rows: activity} = await client.query(`
+    const { rows: [activity]} = await client.query(`
     INSERT INTO activities(name,description)
     VALUES($1 , $2)
     RETURNING *;
     `,[name,description])
+    console.log(activity)
     return activity;
 
   }catch(error){
@@ -32,11 +33,12 @@ async function getAllActivities() {
 
 async function getActivityById(id) {
   try{
-    const { rows: ActivityById } = await client.query(`
+    const { rows: [ActivityById] } = await client.query(`
     SELECT * 
     FROM activities 
-    WHERE id=${id}
+    WHERE id=$1;
     `,[id])
+    console.log(ActivityById)
     return ActivityById;
 
   }catch(error){
@@ -46,7 +48,7 @@ async function getActivityById(id) {
 
 async function getActivityByName(name) {
   try{
-    const {rows: activityByName} = await client.query(`
+    const {rows: [activityByName]} = await client.query(`
     SELECT * 
     FROM activities
     WHERE name=$1
@@ -60,6 +62,17 @@ async function getActivityByName(name) {
 
 async function attachActivitiesToRoutines(routines) {
   // select and return an array of all activities
+  try{
+    const {rows: [allActivities]} = await client.query(`
+    SELECT *
+    FROM activities
+    `)
+
+    return allActivities;
+
+  }catch(error){
+    throw Error(error)
+  }
 }
 
 async function updateActivity({ id, ...fields }) {

@@ -29,19 +29,20 @@ async function getUser({ username, password }) {
     const hashedPassword = user.password;
     const isValid = await bcrypt.compare(password, hashedPassword)
 
-    const { rows } = await client.query(`
+    const { rows: [getUsers]  } = await client.query(`
     SELECT *
     FROM users
-    WHERE (username =$1 
-    AND password = $2);
-    `,[username,password])
-   
+    WHERE username =$1 
+    `,[username])
+
+    console.log(isValid)
     if(isValid){
-      
-      delete rows.password;
-      return rows;
+      console.log(getUsers)
+      delete getUsers.password;
+      return getUsers;
     }else{
-      throw Error('Password doesnt verify')
+      return false;
+     // throw Error('Password doesnt verify')
     }
 
 
