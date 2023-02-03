@@ -2,11 +2,12 @@ const client = require("./client");
 
 async function createRoutine({ creatorId, isPublic, name, goal }) {
   try{
-    const { rows: routine} = await client.query(`
+    const {rows:[routine]} = await client.query(`
     INSERT INTO routines("creatorId", "isPublic", name, goal)
     VALUES($1,$2,$3,$4)
     RETURNING *;
     `,[creatorId, isPublic, name, goal])
+    console.log(routine)
     return routine;
 
   }catch(error){
@@ -18,9 +19,35 @@ async function getRoutineById(id) {}
 
 async function getRoutinesWithoutActivities() {}
 
-async function getAllRoutines() {}
+async function getAllRoutines() {
+  try{
+    const {rows: routine} = await client.query(`
+    SELECT routines.*,
+    users.username AS "creatorName"
+    FROM routines
+    JOIN users ON users.id = routines."creatorId";
+    `);
+    console.log(routine)
+    return routine;
+  } catch (error){
+    return error;
+  }
+}
 
-async function getAllPublicRoutines() {}
+
+async function getAllPublicRoutines() {
+  try{
+    const {rows: publicRoutines} = await client.query(`
+    SELECT * 
+    FROM routines 
+    WHERE "isPublic" = true
+    `)
+    console.log(publicRoutines)
+    return publicRoutines
+  }catch(error){
+    throw Error(error)
+  }
+}
 
 async function getAllRoutinesByUser({ username }) {}
 

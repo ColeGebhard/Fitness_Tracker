@@ -23,11 +23,11 @@ async function addActivityToRoutine({
 
 async function getRoutineActivityById(id) {
   try{
-    const {rows: RoutineById} = await client.query(`
+    const {rows: [RoutineById]} = await client.query(`
     SELECT *
     FROM routine_activities
     WHERE id=${id}
-    `,[id])
+    `)
     return RoutineById
 
   }catch(error){
