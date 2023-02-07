@@ -1,5 +1,5 @@
 const client = require("./client");
-const { attachActivitiesToRoutines } = require("./activities")
+const { attachActivitiesToRoutines, getActivityById } = require("./activities")
 
 async function createRoutine({ creatorId, isPublic, name, goal }) {
   try{
@@ -30,7 +30,6 @@ async function getAllRoutines() {
     for (let i = 0; i < routine.length; i++) {
       routine[i].activities = await attachActivitiesToRoutines(routine[i])
     }
-    // console.log(routine)
 
     return routine;
   } catch (error){
@@ -38,17 +37,64 @@ async function getAllRoutines() {
   }
 }
 
-async function getAllPublicRoutines() {}
+async function getAllPublicRoutines() {
+  try{
+    const {rows: routine} = await client.query(`
+    SELECT routines.*,
+    users.username AS "creatorName"
+    FROM routines
+    JOIN users ON users.id = routines."creatorId"
+    WHERE "isPublic" = true;
+    `);
 
-async function getAllRoutinesByUser({ username }) {}
+    for (let i = 0; i < routine.length; i++) {
+      routine[i].activities = await attachActivitiesToRoutines(routine[i])
+    }
 
-async function getPublicRoutinesByUser({ username }) {}
+    return routine;
+  } catch (error){
+    return error;
+  }
+}
 
-async function getPublicRoutinesByActivity({ id }) {}
+async function getAllRoutinesByUser({ username }) {
+  try{
+    const allRoutines = await getAllRoutines()
+    const routineByUsers = allRoutines.filter(allRoutines => allRoutines && allRoutines.creatorName === username)
+    return routineByUsers
+  }catch(error){
+    throw Error("Failed to get RgetAllPublicRoutinesoutines by user",error)
+  }
+}
+
+async function getPublicRoutinesByUser({ username }) {
+  try{
+    const publicRoutines = await getAllPublicRoutines()
+    const userRoutines = publicRoutines.filter(publicRoutines => publicRoutines && publicRoutines.creatorName === username)
+    return userRoutines
+  }catch(error){
+    throw Error(error)
+  }
+}
+
+async function getPublicRoutinesByActivity({ id }) {
+  try{
+    const activity = await getActivityById( id );
+    const routines = await getAllPublicRoutines(activity)
+    // const selectedRoutine = routines.filter(routines => routines.activities.id  === id)
+
+    return routines;
+
+  }catch(error){
+    throw Error(error)
+  }
+}
 
 async function updateRoutine({ id, ...fields }) {}
 
-async function destroyRoutine(id) {}
+async function destroyRoutine(id) {
+ 
+}
 
 module.exports = {
   getRoutineById,

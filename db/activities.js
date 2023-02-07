@@ -73,8 +73,6 @@ async function attachActivitiesToRoutines(routines) {
     WHERE routine_activities."routineId"=$1;
     `, [routines.id])
 
-    console.log(activity)
-
     return activity;
 
   } catch (error) {
