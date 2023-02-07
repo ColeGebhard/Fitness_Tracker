@@ -36,11 +36,65 @@ async function getRoutineActivityById(id) {
 
 }
 
-async function getRoutineActivitiesByRoutine({ id }) {}
+async function getRoutineActivitiesByRoutine({ id }) {
+  try{
+    const {rows:activitesByRoutine} = await client.query(`
+    SELECT * 
+    FROM routine_activities
+    WHERE "routineId"=${id}
+    `)
 
-async function updateRoutineActivity({ id, ...fields }) {}
+    return activitesByRoutine
 
-async function destroyRoutineActivity(id) {}
+  }catch(error){
+    throw Error('failed to get activities by routines',error)
+  }
+}
+
+async function updateRoutineActivity({ id, ...fields }) {
+  try{
+    const { duration , count } = fields
+    let returned
+
+    if(duration){
+      const { rows:[updated]} = await client.query(`
+      UPDATE routine_activities
+      SET duration=$1
+      WHERE id=$2
+      RETURNING *;
+      `,[duration,id])
+      returned = updated
+    }
+    if(count){
+      const {rows:[updated]} = await client.query(`
+      UPDATE routine_activities
+      SET count=$1
+      WHERE id=$2
+      RETURNING *;
+      `,[count,id])
+      returned = updated
+    }
+
+    return returned
+
+  }catch(error){
+    throw Error('Cannot update',error)
+  }
+}
+
+async function destroyRoutineActivity(id) {
+  try{
+   const {rows:[deletedRoutine]} = await client.query(`
+    DELETE FROM
+    routine_activities
+    WHERE id=${id}
+    RETURNING *;
+    `)
+    return deletedRoutine
+  }catch(error){
+    throw Error("Failed to destory",error)
+  }
+}
 
 async function canEditRoutineActivity(routineActivityId, userId) {}
 
