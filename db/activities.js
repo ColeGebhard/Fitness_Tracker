@@ -8,7 +8,7 @@ async function createActivity({ name, description }) {
     VALUES($1 , $2)
     RETURNING *;
     `,[name,description])
-    console.log(activity)
+  //  console.log(activity)
     return activity;
 
   }catch(error){
@@ -38,7 +38,7 @@ async function getActivityById(id) {
     FROM activities 
     WHERE id=$1;
     `,[id])
-    console.log(ActivityById)
+  //  console.log(ActivityById)
     return ActivityById;
 
   }catch(error){
@@ -62,19 +62,20 @@ async function getActivityByName(name) {
 
 async function attachActivitiesToRoutines(routines) {
   // select and return an array of all activities
-  
-  try{
-    const {rows: [attachedActivities]} = await client.query(`
-    SELECT name,description
+  try {
+    const { rows : activity } = await client.query(`
+    SELECT activities.*,
+    routine_activities."routineId",
+    routine_activities."activityId",
+    routine_activities.duration,
+    routine_activities.count
     FROM activities
-    JOIN routines
- 
- 
-    `)
-    console.log('HELLO',attachedActivities)
-    return attachedActivities;
-
-  }catch(error){
+    JOIN routine_activities
+    ON routine_activities."activityId" = activities.id
+    WHERE routine_activities."routineId"=$1;
+    `, [routines.id])
+    return activity;
+  } catch (error) {
     throw Error(error)
   }
 }

@@ -35,7 +35,7 @@ async function getUser({ username, password }) {
     WHERE username =$1 
     `,[username])
 
-    console.log(isValid)
+   // console.log(isValid)
     if(isValid){
       console.log(getUsers)
       delete getUsers.password;
@@ -61,7 +61,7 @@ async function getUserById(userId) {
     from users 
     WHERE id=${userId}
     `)
-    console.log(userById)
+  //  console.log(userById)
     delete userById.password
     return userById;
 
@@ -78,7 +78,7 @@ async function getUserByUsername(userName) {
     from users 
     WHERE username=$1
     `,[userName])
-    console.log(user)
+  //  console.log(user)
     return user;
   }catch(error){
     
