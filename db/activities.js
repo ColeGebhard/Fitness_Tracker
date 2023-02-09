@@ -66,6 +66,7 @@ async function attachActivitiesToRoutines(routines) {
     routine_activities."routineId",
     routine_activities."activityId",
     routine_activities.duration,
+    routine_activities.id AS "routineActivityId",
     routine_activities.count
     FROM activities
     JOIN routine_activities

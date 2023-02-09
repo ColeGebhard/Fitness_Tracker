@@ -7,7 +7,6 @@ require("dotenv").config();
 const faker = require("faker");
 const client = require("../../db/client");
 const {
-  getRoutineById,
   getAllRoutines,
   getAllPublicRoutines,
   getAllRoutinesByUser,
@@ -183,7 +182,7 @@ describe("DB Routines", () => {
         (activity) => activity.id === fakeActivity.id
       );
       expect(activity.routineId).toEqual(fakeRoutine.id);
-      expect(activity.activityId).toEqual(fakeActivity.id);
+      expect(activity.routineActivityId).toEqual(fakeRoutineActivity.id);
     });
   });
 
@@ -233,7 +232,7 @@ describe("DB Routines", () => {
         (activity) => activity.id === fakeActivity.id
       );
       expect(activity.routineId).toEqual(fakeRoutine.id);
-      expect(activity.activityId).toEqual(fakeActivity.id);
+      expect(activity.routineActivityId).toEqual(fakeRoutineActivity.id);
     });
   });
 
