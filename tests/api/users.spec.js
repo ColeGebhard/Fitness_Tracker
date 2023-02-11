@@ -75,7 +75,7 @@ describe("/api/users", () => {
       expectNotToBeError(response.body);
 
       // Grab the user from the DB manually so we can
-      // get the hashed password and check it
+      // get the hashed password and check xit
       const {
         rows: [user],
       } = await client.query(

@@ -40,12 +40,12 @@ async function getUser({ username, password }) {
   }
 }
 
-async function getUserById(userId) {
+async function getUserById(id) {
   try {
     const { rows: [ user ] } = await client.query(`
       SELECT id
       FROM users
-      WHERE id=${ userId };
+      WHERE id=${ id };
     `, );
 
     if (!user) {
