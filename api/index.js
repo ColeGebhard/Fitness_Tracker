@@ -7,7 +7,7 @@ const { JWT_SECRET } = process.env;
 
 // GET /api/health
 apiRouter.get('/health', async (req, res, next) => {
-    res.send("All is well.");
+    res.send({message: "All is well."});
     next();
 });
 
@@ -61,5 +61,12 @@ apiRouter.use('/routines', routinesRouter);
 // apiRouter: /api/routine_activities
 const routineActivitiesRouter = require('./routineActivities');
 apiRouter.use('/routine_activities', routineActivitiesRouter);
+
+apiRouter.get('*', function(req, res){
+  res.status(404).send({
+    message: 'WHAT ARRRR'
+  });
+});
+
 
 module.exports = apiRouter;
