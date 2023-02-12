@@ -36,9 +36,9 @@ usersRouter.post('/register', async (req, res, next) => {
         const token = jwt.sign({
             id: user.id,
             username
-      }, process.env.JWT_SECRET, {
+        }, process.env.JWT_SECRET, {
             expiresIn: '1w'
-      });
+        });
 
         res.send({
             message: "Sign-up Successful!",
@@ -52,7 +52,7 @@ usersRouter.post('/register', async (req, res, next) => {
 // POST /api/users/login
 usersRouter.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    
+
     if (!username || !password) {
         res.send({
             name: 'MissingUserOrPassword',
@@ -99,20 +99,26 @@ usersRouter.get('/me', async (req, res) => {
     }
 })
 // GET /api/users/:username/routines
-usersRouter.get(`/:username/routines`,async(req,res) =>{
-    const username = req.params.username
+usersRouter.get('/:username/routines', async(req,res,next)=>{
+    const{username}=req.params
     try{
-        if(username){
-            const userRoutines = await getAllRoutinesByUser({username});
-            const publicRoutines = await getPublicRoutinesByUser({username})
-            console.log(publicRoutines, userRoutines)
-            res.send({ ...publicRoutines, ...userRoutines }); 
-       }else{
-            return null;
-        }
-    }catch(error){
-        throw Error('Failed to get', error)
+            const usertoken = req.headers.authorization;
+            const token = usertoken.split(' ');
+            const data = jwt.verify(token[1], JWT_SECRET);
+
+            if(username === data.username){
+                const routines = await getAllRoutinesByUser({username});
+                res.send(routines)
+            }else{
+                const user = await getPublicRoutinesByUser({username});
+                res.send(user);
+            }
+      
     }
-})
+    catch({name,message}){
+      next({name,message})
+  }
+  
+  })
 
 module.exports = usersRouter;

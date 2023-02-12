@@ -8,7 +8,6 @@ const {
     getActivityById,
     updateActivity
 } = require('../db')
-const { requireUser } = require('./utils')
 
 
 // GET /api/activities/:activityId/routines
@@ -52,82 +51,59 @@ activitiesRouter.get('/', async (req, res, next) => {
 })
 
 // POST /api/activities
-activitiesRouter.post('/', requireUser, async (req, res, next) => {
-    const { name, description } = req.body
-
+activitiesRouter.post('/', async (req, res, next) => {
     try {
-        if (!req.headers.authorization) {
-            res.status(401).send({
-                error: "failed to getme",
-                message: "You must be logged in to perform this action",
-                name: "Please log in."
-            })
+        if (req.user) {
+
+            const { name, description } = req.body
+
+            const _name = await getActivityByName(name)
+
+            if (_name) {
+                res.send({
+                    error: "error activity already exists",
+                    message: `An activity with name ${name} already exists`,
+                    name: "ActivityExists"
+                })
+            } else {
+                const activity = await createActivity({ name, description })
+
+                res.send(activity)
+            }
         }
-        const _activity = await getActivityByName(name)
-        if (_activity) {
-            res.send({
-                error: 'Activity Error',
-                message: `An activity with name ${name} already exists`,
-                name: 'Activity error'
-            });
-        }
-
-        const activity = await createActivity({
-            name,
-            description
-        });
-
-        res.send({
-            message: "Creation Successful!",
-            activity
-        });
-
-    } catch ({ name, message }) {
-        next({ name, message })
+    } catch (error) {
+        next(error)
     }
 })
 
 // PATCH /api/activities/:activityId
 activitiesRouter.patch('/:activityId', async (req, res, next) => {
-    const { activityId } = req.params;
-    const { name, description } = req.body;
-
-    const updateFields = {};
-
-    if (name) {
-        updateFields.name = name;
-    }
-
-    if (description) {
-        updateFields.description = description;
-    }
-
-    const activityName = await getActivityByName(name)
-    if (activityName) {
-        res.send({
-            error: 'Activity Error',
-            message: `An activity with name ${name} already exists`,
-            name: 'Activity error'
-        });
-    }
-
-    const _activityId = await getActivityById(activityId)
-    if (!_activityId) {
-        res.send({
-            error: 'UserExistsError',
-            message: `Activity ${activityId} not found`,
-            name: 'UserExistsError'
-        })
-    }
-
-    try {
-        console.log(activityId, updateFields)
-        const updatedActivity = await updateActivity(activityId, updateFields);
-        console.log(updatedActivity)
-        res.send({updatedActivity})
-
-    } catch ({ name, message }) {
-        next({ name, message });
+    try{
+        const fields = req.body;
+        const id = req.params.activityId
+        const name = fields.name
+        const checkActivity = await getActivityById(id)
+        const checkName = await getActivityByName(name)
+        const updatedFields = {}
+        if(checkActivity){
+            (checkName) ?
+            res.send({
+                error: 'error',
+                message: `An activity with name ${name} already exists`,
+                name: 'NameTaken'
+            })
+            :
+            updatedFields.activity = await updateActivity({id, name:fields.name, description:fields.description});
+            res.send(updatedFields.activity)
+        }else{
+            res.send({
+                error: 'error',
+                message: `Activity ${id} not found`,
+                name: 'errorMessage'
+            })
+        }
+    }catch(error){
+        next(error)
     }
 });
 
