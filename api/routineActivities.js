@@ -1,8 +1,10 @@
 const express = require('express');
-const router = express.Router();
+const rActivitiesRouter = express.Router();
+
+const {updateRoutineActivity,canEditRoutineActivity}=require('../db')
 
 // PATCH /api/routine_activities/:routineActivityId
 
 // DELETE /api/routine_activities/:routineActivityId
 
-module.exports = router;
+module.exports = rActivitiesRouter;

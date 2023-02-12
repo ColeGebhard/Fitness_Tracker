@@ -17,12 +17,15 @@ async function createRoutine({ creatorId, isPublic, name, goal }) {
   }
 }
 
-async function getRoutineById(id) {
+async function getRoutineById({id}) {
   try{
-    const allRoutines = await getAllRoutines()
-    const routineById = allRoutines.filter(allRoutine => allRoutine.id === id)
-    console.log(routineById)
-    return routineById
+    const {rows:[routine]} = await client.query(`
+    SELECT *
+    FROM routines
+    WHERE id=$1
+    `,[id])
+    return routine
+    
   }catch(error){
     throw Error(error)
   }
@@ -85,14 +88,12 @@ async function getAllPublicRoutines() {
 }
 
 async function getAllRoutinesByUser({ username }) {
-
-  try{
-    const allRoutines = await getAllPublicRoutines()
+  try {
+    const allRoutines = await getAllRoutines()
     const routineByUsers = allRoutines.filter(allRoutines => allRoutines && allRoutines.creatorName === username)
-    //console.log(routineByUsers)
     return routineByUsers
-  }catch(error){
-    throw Error("Failed to get Routines by user",error)
+  } catch (error) {
+    throw Error("Failed to get RgetAllPublicRoutinesoutines by user", error)
   }
 }
 
@@ -108,10 +109,18 @@ async function getPublicRoutinesByUser({ username }) {
 
 async function getPublicRoutinesByActivity({ id }) {
   try{
-    const activity = await getActivityById( id );
-    const routines = await getAllPublicRoutines(activity)
-    // const selectedRoutine = routines.filter(routines => routines.activities.id  === id)
-    return routines;
+
+    const routines = await getAllPublicRoutines()
+    const filtered = routines.filter(routine => {
+      for (activity of routine.activities){
+        if(activity.id === id){
+          return true
+        }
+      }
+      return false
+    })
+
+    return filtered;
   }catch(error){
     throw Error(error)
   }

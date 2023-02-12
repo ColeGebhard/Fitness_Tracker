@@ -111,23 +111,25 @@ router.get('/me',async(req,res)=>{
 })
 
 // GET /api/users/:username/routines
-router.get(`./:username/routines`,async(req,res) =>{
-    const user = req.user.username
-    const username = req.params.username
+router.get('/:username/routines', async(req,res,next)=>{
+    const{username}=req.params
     try{
-        if(username === user){
-            const username = req.user.username
-            const userRoutines = await getAllRoutinesByUser({username});
-            console.log(userRoutines)
-            res.send(userRoutines)
-        }else{
-            const publicRoutines = await getPublicRoutinesByUser({username})
-            console.log(publicRoutines);
-            res.send(publicRoutines);
-        }
-    }catch(error){
-        throw Error('Failed to get', error)
-    }
-})
+            const usertoken = req.headers.authorization;
+            const token = usertoken.split(' ');
+            const data = jwt.verify(token[1], JWT_SECRET);
 
+            if(username === data.username){
+                const routines = await getAllRoutinesByUser({username});
+                res.send(routines)
+            }else{
+                const user = await getPublicRoutinesByUser({username});
+                res.send(user);
+            }
+      
+    }
+    catch({name,message}){
+      next({name,message})
+  }
+  
+  })
 module.exports = router;
