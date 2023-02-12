@@ -89,7 +89,7 @@ async function getAllRoutinesByUser({ username }) {
   try{
     const allRoutines = await getAllPublicRoutines()
     const routineByUsers = allRoutines.filter(allRoutines => allRoutines && allRoutines.creatorName === username)
-    console.log(routineByUsers)
+    //console.log(routineByUsers)
     return routineByUsers
   }catch(error){
     throw Error("Failed to get Routines by user",error)

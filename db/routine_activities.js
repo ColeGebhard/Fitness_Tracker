@@ -96,7 +96,25 @@ async function destroyRoutineActivity(id) {
   }
 }
 
-async function canEditRoutineActivity(routineActivityId, userId) {}
+async function canEditRoutineActivity(routineActivityId, userId) {
+  try{
+    if(routineActivityId){
+      const {rows} = await client.query(`
+      
+      `)
+    }
+
+    if(userId){
+      const {rows} = await client.query(`
+      
+      `)
+    }
+    
+  }catch(error){
+    throw Error('Failed to edit',error)
+  }
+
+}
 
 module.exports = {
   getRoutineActivityById,
