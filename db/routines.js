@@ -14,15 +14,22 @@ async function createRoutine({ creatorId, isPublic, name, goal }) {
   }
 }
 
+
 async function getRoutineById(id) {
   try {
+
     const routines = await getAllRoutines()
+
     const routineById = routines.filter(routine => routine.id === id)
-    return routineById;
+    if (routineById.length) {
+      return routineById
+    } else {
+      return false
+    }
   } catch (error) {
-    throw Error('could not get routine by id')
+    throw new Error('cant get routine by id')
   }
- }
+}
 
 async function getRoutinesWithoutActivities() {
   try {
