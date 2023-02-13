@@ -1,80 +1,103 @@
-const client = require("./client");
+const client = require('./client');
 const SALT_COUNT = 10;
 const bcrypt = require('bcrypt')
+
 // database functions
 // user functions
 async function createUser({ username, password }) {
+  
+  const hashedPassword = await bcrypt.hash(password, SALT_COUNT);
+
+  //eslint-disable-next-line no-useless-catch
   try{
-   const hashedPassword = await bcrypt.hash(password, SALT_COUNT)
-   const { rows:[user] } = await client.query(`
+
+   const { rows: [user] } = await client.query(`
     INSERT INTO users(username,password)
     VALUES($1,$2)
-    RETURNING *;
+    ON CONFLICT (username) DO NOTHING
+    RETURNING id, username;
     `,[username,hashedPassword]);
-    delete user.password;
+    // delete user.password;
     return user;
+
   }catch(error){
-    throw Error('failed to create user')}
-}
-
-async function getUser({ username, password }) {
-
-  const user = await getUserByUsername(username);
-    const hashedPassword = user.password;
-  const isValid = await bcrypt.compare(password, hashedPassword);
-  try{
-     const { rows:[user] } = await client.query(`
-     SELECT *
-     FROM users
-     WHERE username=$1
-         AND password=$2;
-     `, [username, hashedPassword])
-    if (!isValid) {
-      return null;
-    }
-     delete user.password;
-
-     return user;
-  } catch (error) {
-    return null;
+    throw error;
   }
 }
 
-async function getUserById(id) {
+async function getUserByUsername(userName) {
+  // first get the user
+    //eslint-disable-next-line no-useless-catch
   try {
-    const { rows: [ user ] } = await client.query(`
-      SELECT id, username
-      FROM users
-      WHERE id=${ id };
-    `, );
-
-    if (!user) {
-      return null
-    }
-
-    return user;
-  } catch (error) {
-    throw Error('could not get posts');
-  }
-}
-async function getUserByUsername(username) {
-  try {
-    const { rows: [user] } = await client.query(`
+    const {rows} = await client.query(`
       SELECT *
       FROM users
-      WHERE username=$1;
-    `, [username]);
-
+      WHERE username = $1;
+    `, [userName]);
+    // if it doesn't exist, return null
+    if (!rows || !rows.length) return null;
+    // if it does:
+    // delete the 'password' key from the returned object
+    const [user] = rows;
+    // delete user.password;
     return user;
   } catch (error) {
-    throw Error('Could not get user');
+    console.error(error)
   }
+}
+
+
+async function getUser({ username, password }) {
+  if (!username || !password){
+    return;
+  }
+
+  //eslint-disable-next-line no-useless-catch
+  try{
+
+    const user = await getUserByUsername(username);
+
+    if(!user) return;
+
+    const hashedPassword = user.password;
+    const passwordMatch = await bcrypt.compare(password, hashedPassword);
+
+    if(!passwordMatch) return;
+
+    delete user.password;
+
+    return user;
+
+  }catch (error){
+    throw error;
+  }
+
+}
+
+async function getUserById(userId) {
+
+  //eslint-disable-next-line no-useless-catch
+  try {
+    const { rows: [user] } = await client.query(`
+      SELECT * FROM users
+      WHERE id = $1;
+      `,[userId]);
+
+    if (!user) return null;
+    delete user.password;
+    
+    return user;
+
+  } catch (error) {
+    throw error;
+  }
+
 }
 
 
 module.exports = {
   createUser,
-  getUser,
-  getUserById,
   getUserByUsername,
+  getUser,
+  getUserById
 }
