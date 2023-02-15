@@ -226,7 +226,7 @@ describe("/api/users", () => {
   describe("GET /api/users/:username/routines", () => {
     it("Gets a list of public routines for a particular user.", async () => {
       // Create a fake user with a bunch of routines associated
-      const { fakeUser, token } = await createFakeUserWithRoutinesAndActivities(
+      const {  token } = await createFakeUserWithRoutinesAndActivities(
         "Greg"
       );
       // Create a second user to check against
